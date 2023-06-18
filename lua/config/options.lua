@@ -62,4 +62,4 @@ local disabled_built_ins = {"2html_plugin", "getscript", "getscriptPlugin", "gzi
 for _, plugin in pairs(disabled_built_ins) do
     g["loaded_" .. plugin] = 1
 end
-cmd.colorscheme("tokyonight")
+cmd.colorscheme("github_light_tritanopia")
