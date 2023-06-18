@@ -1,26 +1,36 @@
-require'nvim-treesitter.configs'.setup {
-  ensure_installed = { "tsx", "typescript", "javascript", "html", "css", "vue", "astro", "svelte", "gitcommit", "graphql", "json", "json5", "lua", "markdown", "prisma", "vim", },          
-  sync_install = false,           
-  ignore_install = { "haskell" }, 
-  auto_install = true,
-  highlight = { enable = true, additional_vim_regex_highlighting = true, },
-  incremental_selection = {
-    enable = false,
-    keymaps = { init_selection = "<leader>gnn", node_incremental = "<leader>gnr", scope_incremental = "<leader>gne", node_decremental = "<leader>gnt", },
-  },
-  indent = { enable = true },
-  rainbow = { enable = true, colors = { "#68a0b0", "#946EaD", "#c7aA6D", }, disable = { "html" }, },
-  context_commentstring = { enable = true, enable_autocmd = false, },
-  textobjects = {
-    move = { enable = true, set_jumps = true,  goto_next_start = { ["]]"] = "@function.outer", ["]m"] = "@class.outer", }, goto_next_end = { ["]["] = "@function.outer", ["]M"] = "@class.outer", }, goto_previous_start = { ["[["] = "@function.outer", ["[m"] = "@class.outer", }, goto_previous_end = { ["[]"] = "@function.outer", ["[M"] = "@class.outer", }, },
-    select = { enable = true, lookahead = true,  keymaps = {  ["af"] = "@function.outer", ["if"] = "@function.inner", ["ac"] = "@class.outer", ["ic"] = "@class.inner", }, },
-    swap = {
-      enable = true,
-      swap_next = { ["~"] = "@parameter.inner", },
+return { 
+{
+    "nvim-treesitter/nvim-treesitter",
+    version = false, 
+    build = ":TSUpdate",
+    dependencies = {{
+        "nvim-treesitter/nvim-treesitter-textobjects",
+        init = function()
+            local plugin = require("lazy.core.config").spec.plugins["nvim-treesitter"]
+            local opts = require("lazy.core.plugin").values(plugin, "opts", false)
+            local enabled = false
+            if opts.textobjects then
+                for _, mod in ipairs({"move", "select", "swap", "lsp_interop"}) do
+                    if opts.textobjects[mod] and opts.textobjects[mod].enable then
+                        enabled = true
+                        break
+                    end
+                end
+            end
+            if not enabled then
+                require("lazy.core.loader").disable_rtp_plugin("nvim-treesitter-textobjects")
+            end
+        end
+    }},
+    opts = {
+        ensure_installed = {"go", "python", "dockerfile", "json", "yaml", "markdown", "html", "scss", "css", "vim"},
+        highlight = { enable = true, use_languagetree = true },
+        indent = { enable = true },
+        autotag = { enable = true },
+        context_commentstring = { enable = true, enable_autocmd = false },
+        refactor = { highlight_definitions = { enable = true }, highlight_current_scope = { enable = false } }
     },
-  },
-  textsubjects = {
-    enable = true,
-    keymaps = { ['<cr>'] = 'textsubjects-smart',  }
-  },
-}
+    config = function(_, opts)
+        require("nvim-treesitter.configs").setup(opts)
+    end
+}}
